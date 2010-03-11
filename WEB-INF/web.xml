@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app
+	xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	version="2.4">
+	
+	<!-- Servlet control -->
+	
+	<servlet>
+		<servlet-name>Server</servlet-name>
+		<servlet-class>Server</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Controller</servlet-name>
+		<servlet-class>Controller</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>Server</servlet-name>
+		<url-pattern>/Server</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Controller</servlet-name>
+		<url-pattern>/Read</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Controller</servlet-name>
+		<url-pattern>/Edit</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Controller</servlet-name>
+		<url-pattern>/Entry</url-pattern>
+	</servlet-mapping>
+	
+	<!-- Error pages -->
+	
+	<error-page>
+		<error-code>404</error-code>
+		<location>/jsp/404_not-found.jsp</location>
+	</error-page>
+</web-app>

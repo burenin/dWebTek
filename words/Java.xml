@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wiki xmlns="http://cs.au.dk/dWebTek/WikiXML">
+  <header>
+    <text>The</text>
+    <ws />
+    <text>dWebTek</text>
+    <ws />
+    <text>Project</text>
+  </header>
+  <text>The</text>
+  <ws />
+  <link url="http://www.cs.au.dk/dWebTek/project.html" word="project" />
+  <ws />
+  <text>involves:</text>
+  <ws />
+  <list>
+    <item>
+      <text>a</text>
+      <ws />
+      <text>Wiki</text>
+      <ws />
+      <wikilink word="server" />
+    </item>
+    <item>
+      <text>a</text>
+      <ws />
+      <text>Wiki</text>
+      <ws />
+      <wikilink word="metaserver" />
+    </item>
+    <item>
+      <text>a</text>
+      <ws />
+      <text>Wiki</text>
+      <ws />
+      <wikilink word="client" />
+    </item>
+  </list>
+  <text>Pages</text>
+  <ws />
+  <text>are</text>
+  <ws />
+  <text>written</text>
+  <ws />
+  <text>in</text>
+  <ws />
+  <text>a</text>
+  <ws />
+  <text>subset</text>
+  <ws />
+  <text>of</text>
+  <ws />
+  <italics>
+    <text>Wikipedia</text>
+  </italics>
+  <ws />
+  <text>syntax</text>
+  <ws />
+  <text>and</text>
+  <ws />
+  <text>are</text>
+  <ws />
+  <text>translated</text>
+  <ws />
+  <text>into</text>
+  <ws />
+  <text>WikiXML</text>
+  <ws />
+  <text>using</text>
+  <ws />
+  <text>a</text>
+  <ws />
+  <text>Java</text>
+  <ws />
+  <text>class</text>
+  <ws />
+  <tt>
+    <text>Txt2WikiXML</text>
+  </tt>
+  <text>.</text>
+  <ws />
+  <rule />
+  <text>Note</text>
+  <ws />
+  <text>that</text>
+  <ws />
+  <text>the</text>
+  <ws />
+  <text>parser</text>
+  <ws />
+  <text>does</text>
+  <ws />
+  <bold>
+    <text>not</text>
+  </bold>
+  <ws />
+  <text>generate</text>
+  <ws />
+  <text>any</text>
+  <ws />
+  <text>syntax</text>
+  <ws />
+  <text>errors.</text>
+  <ws />
+  <br />
+  <text>Once</text>
+  <ws />
+  <text>the</text>
+  <ws />
+  <text>system</text>
+  <ws />
+  <text>is</text>
+  <ws />
+  <text>operational,</text>
+  <ws />
+  <text>you</text>
+  <ws />
+  <text>can</text>
+  <ws />
+  <text>write</text>
+  <ws />
+  <text>lots</text>
+  <ws />
+  <text>of</text>
+  <ws />
+  <text>Wiki</text>
+  <ws />
+  <text>pages.</text>
+</wiki>
+

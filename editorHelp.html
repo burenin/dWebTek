@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<title>Editor help</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link rel="stylesheet" type="text/css" media="screen" href="jsp/css/stylesheet.css" />
+	</head>
+	<body class="editor">
+		<h2>The Wiki Language</h2>
+		<p>Wiki articles are normally authored in a non-XML syntax, where:</p> 
+		<ul> 
+			<li>An image looks like [[Image:url]].</li> 
+			<li>Links look like [[word]], [[wiki:word]], and [url word].</li> 
+			<li>The italics style is selected as ''...'', and the bold weight as '''...'''.</li> 
+			<li>The fixed-width style is selected as &lt;tt&gt;...&lt;/tt&gt;.</li> 
+			<li>A header is written as == ... == at the beginning of a line.</li> 
+			<li>
+				List of items is written as:<br/> 
+				* first<br/> 
+				* second<br/> 
+				* third<br/> 
+				where the *'s must begin the lines.
+			</li> 
+			<li>A horizontal rule is denoted by ---- which must begin the line.</li> 
+			<li>A character reference is denoted as e.g. &amp;oslash;.</li> 
+			<li>A linebreak is written as &lt;br/&gt;.</li> 
+			<li>Texts and whitespace are written literally.</li> 
+		</ul>
+		<p>Example of an article written in the wiki syntax:</p>
+		<div class="code">
+			<code>
+				== The dWebTek Project ==<br/> 
+				The [http://www.cs.au.dk/dWebTek/project.html project] involves:<br/> 
+				* a Wiki [[server]]<br/> 
+				* a Wiki [[metaserver]]<br/> 
+				* a Wiki [[client]]<br/> 
+				Pages are written in a subset of ''Wikipedia'' syntax
+				and are translated into WikiXML using a Java
+				class &lt;tt&gt;Txt2WikiXML&lt;/tt&gt;.<br/> 
+				----<br/> 
+				Note that the parser does '''not''' generate any syntax errors.<br/> 
+				&lt;br/&gt;<br/> 
+				Once the system is operational, you can write lots of Wiki pages.
+			</code>
+		</div>
+		<h3>Creating, Editing &amp; Reading Articles</h3>
+		<p>Use "_" to denote a space when trying to reach or create an article. E.g. an article on "computer science" is denoted "computer_science".</p>
+		<p>Article names can only contain letters (a-zA-Z) and the underscore character (_).</p>
+	</body>
+</html>
