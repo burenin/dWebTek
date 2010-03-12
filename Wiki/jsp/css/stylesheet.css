@@ -112,9 +112,7 @@ input, textarea {
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 }
-div.main div.right input { background: #ffffff; }
-form.conflict textarea { margin: 0 10px 0 0; width: 337px; }
-form.conflict textarea.conflictText { margin: 0; }
+div.main div.right input { background: #ffffff; } 
 textarea { width: 694px; height: 350px; }
 input.submit { padding: 1px; }
 input.checkbox {

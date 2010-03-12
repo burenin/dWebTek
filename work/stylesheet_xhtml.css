@@ -1,0 +1,22 @@
+﻿* {
+	font-size: 128%;
+	color: #000000;
+	font-family: sans-serif;
+}
+
+body {
+	margin: 0;
+}
+
+h1, h2 {
+	color: #002bb8;
+	border-bottom: #aaaaaa 1px solid;
+}
+
+h1 {
+	font-size: 188%;
+}
+
+h2 {
+	font-size: 150%;
+}

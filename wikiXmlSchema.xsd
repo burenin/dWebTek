@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:w="http://cs.au.dk/dWebTek/WikiXML"
+	targetNamespace="http://cs.au.dk/dWebTek/WikiXML" elementFormDefault="qualified">
+
+	<element name="wiki">
+		<annotation>
+			<documentation>
+				Describing wiki-element
+				TODO: Text-elements may not be followed by another of the current element type
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<choice minOccurs="0" maxOccurs="1">
+					<element name="ws" type="w:ws.type"/>
+				</choice>
+				<choice minOccurs="0" maxOccurs="unbounded">
+					<choice>
+						<sequence>
+							<choice minOccurs="1" maxOccurs="unbounded">
+								<group ref="w:elements.normal" />
+							</choice>
+							<choice minOccurs="0" maxOccurs="1">
+								<element name="ws" type="w:ws.type"/>
+							</choice>
+						</sequence>
+					</choice>
+					<choice minOccurs="0" maxOccurs="unbounded">
+						<element name="br" type="w:br.type" />
+						<group ref="w:elements.hlr" />
+					</choice>	
+				</choice> 
+			</sequence>
+		</complexType>
+	</element>
+	
+	<annotation>
+		<documentation>
+			======================== ELEMENT DESCRIPTIONS ======================
+		</documentation>
+	</annotation>	
+
+	<complexType name="image.type">
+		<annotation>
+			<documentation>
+				describing image-element
+				Restricts required attribute
+				url, type:anyURI	
+			</documentation>
+		</annotation>
+		<attribute name="url" type="anyURI" use="required" />
+	</complexType>
+	
+	<complexType name="italics.type">
+		<annotation>
+			<documentation>
+				describing italics-element
+				May contain a element of wiki elements except italics-elements.
+				TODO: Deep nesting.
+				TODO: Text-elements may not be followed by another of the current element type
+			</documentation>
+		</annotation>
+		<sequence>
+			<choice minOccurs="0" maxOccurs="1">
+				<element name="ws" type="w:ws.type"/>
+			</choice>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<choice>
+					<sequence>
+						<choice minOccurs="1" maxOccurs="unbounded">
+							<group ref="w:elements.core" />				
+							<element name="tt" type="w:tt.type" />
+							<element name="bold" type="w:bold.type" />
+						</choice>
+						<choice minOccurs="0" maxOccurs="1">
+							<element name="ws" type="w:ws.type"/>
+						</choice>
+					</sequence>
+				</choice>
+				<choice minOccurs="0" maxOccurs="unbounded">
+					<element name="br" type="w:br.type" />
+					<group ref="w:elements.hlr" />
+				</choice>	
+			</choice> 
+		</sequence>
+	</complexType>
+	
+	<complexType name="tt.type">
+		<annotation>
+			<documentation>
+				describing tt-element
+				May contain a element of wiki elements except tt-elements.
+				TODO: Deep nesting.
+				TODO: Text-elements may not be followed by another of the current element type
+			</documentation>
+		</annotation>
+		<sequence>
+			<choice minOccurs="0" maxOccurs="1">
+				<element name="ws" type="w:ws.type"/>
+			</choice>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<choice>
+					<sequence>
+						<choice minOccurs="1" maxOccurs="unbounded">
+							<group ref="w:elements.core" />				
+							<element name="italics" type="w:italics.type" />
+							<element name="bold" type="w:bold.type" />
+						</choice>
+						<choice minOccurs="0" maxOccurs="1">
+							<element name="ws" type="w:ws.type"/>
+						</choice>
+					</sequence>
+				</choice>
+				<choice minOccurs="0" maxOccurs="unbounded">
+					<element name="br" type="w:br.type" />
+					<group ref="w:elements.hlr" />
+				</choice>	
+			</choice> 
+		</sequence>
+	</complexType>
+	
+	<complexType name="bold.type">
+		<annotation>
+			<documentation>
+				describing bold-element
+				May contain a element of wiki elements except bold-elements.
+				TODO: Deep nesting.
+				TODO: Text-elements may not be followed by another of the current element type
+			</documentation>
+		</annotation>
+		<sequence>
+			<choice minOccurs="0" maxOccurs="1">
+				<element name="ws" type="w:ws.type"/>
+			</choice>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<choice>
+					<sequence>
+						<choice minOccurs="1" maxOccurs="unbounded">
+							<group ref="w:elements.core" />				
+							<element name="italics" type="w:italics.type" />
+							<element name="tt" type="w:tt.type" />
+						</choice>
+						<choice minOccurs="0" maxOccurs="1">
+							<element name="ws" type="w:ws.type"/>
+						</choice>
+					</sequence>
+				</choice>
+				<choice minOccurs="0" maxOccurs="unbounded">
+					<element name="br" type="w:br.type" />
+					<group ref="w:elements.hlr" />
+				</choice>	
+			</choice> 
+		</sequence>
+	</complexType>
+	
+	<complexType name="header.type">
+		<annotation>
+			<documentation>
+				describing header-element
+				May contain a element of wiki elements except elements from the elements.hlr group.
+				TODO: Deep nesting.
+				TODO: Text-elements may not be followed by another of the current element type
+			</documentation>
+		</annotation>
+		<sequence>
+			<choice minOccurs="0" maxOccurs="1">
+				<element name="ws" type="w:ws.type"/>
+			</choice>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<choice>
+					<sequence>
+						<choice minOccurs="1" maxOccurs="unbounded">
+							<group ref="w:elements.normal" />
+						</choice>
+						<choice minOccurs="0" maxOccurs="1">
+							<element name="ws" type="w:ws.type"/>
+						</choice>
+					</sequence>
+				</choice>
+				<choice minOccurs="0" maxOccurs="unbounded">
+					<element name="br" type="w:br.type" />
+				</choice>	
+			</choice> 
+		</sequence>
+	</complexType>
+	
+	<complexType name="wikilink.type">
+		<annotation>
+			<documentation>
+				describing wikilink-element
+				Restricts required
+				attribute word type: w:word.att
+				Restricts optional attribute wiki
+				type: anyURI, default: ?LOCALHOST?
+			</documentation>
+		</annotation>
+		<attribute name="word" type="w:word.att" use="required" />
+		<attribute name="wiki" type="anyURI" default="?LOCALHOST?" />
+	</complexType>
+	
+	<complexType name="link.type">
+		<annotation>
+			<documentation>
+				describing link-element
+				Restricts required attribute
+				word type: w:word.att
+				Restricts required attribute url type: anyURI
+			</documentation>
+		</annotation>
+		<attribute name="url" type="anyURI" use="required" />
+		<attribute name="word" type="w:word.att" use="required" />
+	</complexType>
+	
+	<complexType name="character.type">
+		<annotation>
+			<documentation>
+				Describing charater-element.
+				Restricts required
+				attribute entity type: w:entity.att
+			</documentation>
+		</annotation>
+		<attribute name="entity" type="w:entity.att" use="required" />
+	</complexType>
+	
+	<complexType name="rule.type">
+		<annotation>
+			<documentation>	
+				Describing the rule-element
+				Empty element.
+			</documentation>
+		</annotation>
+	</complexType>
+	
+	<complexType name="br.type">
+		<annotation>
+			<documentation>	
+				Describing the br-element
+				Empty element.
+			</documentation>
+		</annotation>
+	</complexType>
+	
+	<complexType name="list.type">
+		<annotation>
+			<documentation>
+				Describing the list-element
+				Contains a list of item elements
+			</documentation>
+		</annotation>
+		<sequence> 
+			<element name="item" type="w:item.type" minOccurs="1" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="item.type">
+		<annotation>
+			<documentation>
+				Describing the list-element
+				TODO: Text-elements may not be followed by another of the current element type
+			</documentation>
+		</annotation>
+		<sequence>
+			<choice minOccurs="0" maxOccurs="1">
+				<element name="ws" type="w:ws.type"/>
+			</choice>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<choice>
+					<sequence>
+						<choice minOccurs="1" maxOccurs="unbounded">
+							<group ref="w:elements.normal" />
+						</choice>
+						<choice minOccurs="0" maxOccurs="1">
+							<element name="ws" type="w:ws.type"/>
+						</choice>
+					</sequence>
+				</choice>
+				<choice minOccurs="0" maxOccurs="unbounded">
+					<element name="br" type="w:br.type" />
+				</choice>	
+			</choice> 
+		</sequence>
+	</complexType>
+	
+	<simpleType name="text.type">
+		<annotation>
+			<documentation>
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<pattern value="((\S(.+)\S)|(\S\S)|\S)" />
+		</restriction>
+	</simpleType>
+	
+	<complexType name="ws.type">
+		<annotation>
+			<documentation>
+				Describing the ws-element
+				EMPTY element
+			</documentation>
+		</annotation>
+	</complexType>
+	
+	<annotation>
+		<documentation>
+			======================== ELEMENT GROUPS ======================
+		</documentation>
+	</annotation>
+	
+	<group name="elements.core">
+		<annotation>
+			<documentation>
+				Elements there always may be inside of an element
+			</documentation>
+		</annotation>
+		<choice>
+			<element name="image" type="w:image.type" />
+			<element name="text" type="w:text.type" />
+			<element name="link" type="w:link.type" />
+			<element name="wikilink" type="w:wikilink.type" />
+			<element name="character" type="w:character.type" />
+		</choice>
+	</group>
+	
+	<group name="elements.normal">
+		<annotation>
+			<documentation>
+				Elements there is "normal" reprecented, only nesting restricted
+			</documentation>
+		</annotation>
+		<choice>
+			<group ref="w:elements.core" />
+			<element name="italics" type="w:italics.type" />
+			<element name="tt" type="w:tt.type" />
+			<element name="bold" type="w:bold.type" />
+		</choice>
+	</group>
+	
+	<group name="elements.hlr">
+		<annotation>
+			<documentation>
+				The elements header list and rule.
+			</documentation>
+		</annotation>
+		<choice>
+			<element name="header" type="w:header.type" />
+			<element name="list" type="w:list.type" />
+			<element name="rule" type="w:rule.type" />
+		</choice>
+	</group>
+	
+	<annotation>
+		<documentation>
+			======================== ATTRIBUTE DESCRIPTIONS ======================
+		</documentation>
+	</annotation>
+	
+	<simpleType name="word.att">
+		<annotation>
+			<documentation>
+				describing word-attribute
+				Restricts base:"string", Any
+				string longer than 0 with chars: a-z,A-Z and _	
+			</documentation>
+		</annotation>
+		<restriction base="string" >
+			<pattern value="\w+" />
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="entity.att">
+		<annotation>
+			<documentation>
+				describing entity-attribute
+				Restricts base:"string", Any
+				string longer than 0 with chars: (#)? [a-zA-Z0-9] one or more times and + and ends with ;.
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<pattern value="(#)?([a-zA-Z0-9]+);" />
+		</restriction>
+	</simpleType>
+</schema>

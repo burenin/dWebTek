@@ -29,38 +29,40 @@ public class Controller extends HttpServlet {
 		}
 		
 		String word = request.getParameter("word");
-		model.setSelectedWord(word);
-		
 		String wiki = request.getParameter("wiki");
-		model.setSelectedWiki(wiki);
-		
 		String pattern = request.getParameter("pattern");
+		model.setSelectedWord(word);
+		model.setSelectedWiki(wiki);
 		model.setPattern(pattern);
-		
-		String versionRequest = request.getParameter("version");
-		int version = -1;
-		if (versionRequest != null && !versionRequest.equals("")) {
-			try {
-				version = Integer.parseInt(versionRequest);
-			} catch(NumberFormatException e) {
-				//
-			}
-		}
-		model.setVersion(version);
-		
+				
 		// Handle request		
 		if (!command.equals("/Entry")) {
 			if (command.equals("/Read") && word != null && !word.equals("")) {
+				// READ!
+				// Check for special version request
+				String versionRequest = request.getParameter("version");
+				int version = -1;
+				if (versionRequest != null && !versionRequest.equals("")) {
+					try {
+						version = Integer.parseInt(versionRequest);
+					} catch(NumberFormatException e) {
+						//
+					}
+				}
+				model.setVersion(version);
+
+				// Set default server
 				if (wiki == null || wiki.equals("")) {
 					model.setSelectedWiki(model.getDefaultWiki());
 				}
 				servletContext.getRequestDispatcher("/jsp/wiki_read.jsp").forward(request, response);
 				
 			} else if (command.equals("/Edit") && wiki != null && !wiki.equals("")) {
+				// EDIT!
 				servletContext.getRequestDispatcher("/jsp/wiki_edit.jsp").forward(request, response);
 				
 			} else if (command.equals("/Luck")) {
-				model.setPattern(pattern);
+				// LUCK!
 				servletContext.getRequestDispatcher("/jsp/wiki_read.jsp").forward(request, response);
 				
 			} else {
@@ -69,12 +71,15 @@ public class Controller extends HttpServlet {
 		}
 		
 		if (command.equals("/Entry")) {			
-			// Forward
+			// ENTRY!
 			String delete = request.getParameter("delete");
 			if (delete == null) {
+				// Usual entry
+				model.setVersion(-1);
 				servletContext.getRequestDispatcher("/jsp/wiki_entry.jsp").forward(request, response);
 				
 			} else if (delete != null && delete.equals("yes") && wiki != null && !wiki.equals("") && word != null && !word.equals("")) {
+				// Send delete request
 				WikiServer server = model.getServer(wiki);
 				if (server != null) {
 					try {
@@ -86,14 +91,8 @@ public class Controller extends HttpServlet {
 							all ="";
 						}
 						String service = "http://" + server.getHost() + ":" + server.getPort() + "/Wiki/Server?word=" + word + all;
-						HttpURLConnection connection = (HttpURLConnection) (new URL(service)).openConnection();
-						connection.setRequestMethod("DELETE");
-						connection.setReadTimeout(150);
-						connection.setConnectTimeout(150);
-						
-						// Check response			
-						int responseCode = connection.getResponseCode();
-						if (responseCode >= 200 && responseCode < 300) {
+						int deleteResponseCode = HttpUtils.getResponseCodeFromHttpRequest("DELETE", service, new String[0]);
+						if (deleteResponseCode >= 200 && deleteResponseCode < 300) {
 							model.setPattern("");
 							model.setSelectedWiki("");
 							model.setMessage("Successful deletion", "The word <i>" + word + "</i> was deleted from <i>" + wiki + "</i>.", "");
@@ -148,34 +147,31 @@ public class Controller extends HttpServlet {
 				if (server != null) {
 					try {
 						String service = "http://" + server.getHost() + ":" + server.getPort() + "/Wiki/Server?word=";
-
-						boolean modified = false;
 						
+						boolean modified = false;
 						if (ignoreConflict == null || !ignoreConflict.equals("yes")) {
-							
 							if (oldETag == null || oldETag.equals("")) {
-								HttpURLConnection existConnection = (HttpURLConnection) (new URL(service + word)).openConnection();
-								existConnection.setRequestMethod("GET");
-								existConnection.setReadTimeout(150);
-								existConnection.setConnectTimeout(150);
-								
-								if (existConnection.getResponseCode() != 404) {
+								// Create request, check for already exist
+								int createResponseCode = HttpUtils.getResponseCodeFromHttpRequest("GET", service + word, new String[0]);
+								if (createResponseCode != 404) {
 									modified = true;
+									model.setSelectedWord(word);
+									model.setSelectedWiki(wiki);
 									model.setText(text);
 									model.setConflict(true);
 									model.setMessage("Conflict detected", "A conflict was detected. The word you are trying to create, has already been put.", "");
 									servletContext.getRequestDispatcher("/jsp/wiki_edit.jsp").forward(request, response);
 								}
 							} else if (oldETag != null && !oldETag.equals("")) {
-								HttpURLConnection existConnection = (HttpURLConnection) (new URL(service + word)).openConnection();
-								existConnection.setRequestMethod("GET");
-								existConnection.setReadTimeout(150);
-								existConnection.setConnectTimeout(150);
-								
-								existConnection.setRequestProperty("If-None-Match", oldETag);
-								
-								if (existConnection.getResponseCode() != 304) {
+								// Edit response, check for new version since edit
+								String[] properties = new String[2];
+								properties[0] = "If-None-Match";
+								properties[1] = oldETag;
+								int editResponseCode = HttpUtils.getResponseCodeFromHttpRequest("GET", service + word, properties);
+								if (editResponseCode != 304) {
 									modified = true;
+									model.setSelectedWord(word);
+									model.setSelectedWiki(wiki);
 									model.setETag(oldETag);
 									model.setText(text);
 									model.setConflict(true);
@@ -187,18 +183,11 @@ public class Controller extends HttpServlet {
 						}
 						
 						if (!modified) {
-						
 							int deleteResponse = -1;
 							int putResponse = -1;
-							
 							if (oldWord != null && !oldWord.equals(word)) {
 								// Do a delete request to remove oldWord
-								HttpURLConnection deleteConnection = (HttpURLConnection) (new URL(service + oldWord)).openConnection();
-								deleteConnection.setRequestMethod("DELETE");
-								deleteConnection.setReadTimeout(150);
-								deleteConnection.setConnectTimeout(150);
-								
-								deleteResponse = deleteConnection.getResponseCode();
+								deleteResponse = HttpUtils.getResponseCodeFromHttpRequest("DELETE", service + oldWord, new String[0]);
 							}
 							
 							// Do a put request to create/edit word
@@ -210,9 +199,7 @@ public class Controller extends HttpServlet {
 							
 							// Write form to service
 							BufferedWriter out = new BufferedWriter(new OutputStreamWriter(putConnection.getOutputStream()));
-							
 							StringReader reader = new StringReader(StringEscapeUtils.escapeHtml(text));
-							
 							Txt2WikiXML parser = new Txt2WikiXML(reader);
 							Document xmlDocument = parser.parseWiki();
 							XmlUtils.outputDocument(xmlDocument, out);
@@ -221,11 +208,13 @@ public class Controller extends HttpServlet {
 							putResponse = putConnection.getResponseCode();
 							
 							boolean success;
-							
 							if (oldWord != null && !oldWord.equals(word)) {
+								// Edit with word-name change!
 								if (putResponse >= 200 && putResponse < 300 && deleteResponse >= 200 && deleteResponse < 300) {
+									// All ok
 									success = true;
 								} else {
+									// Something went wrong
 									success = false;
 									if ((putResponse < 200 || putResponse >= 300) && (deleteResponse < 200 || deleteResponse >= 300)) {
 										model.setText(text);
@@ -238,9 +227,12 @@ public class Controller extends HttpServlet {
 									}
 								}
 							} else {
+								// Create or edit
 								if (putResponse >= 200 && putResponse < 300) {
+									// All ok
 									success = true;
 								} else {
+									// Bad put
 									success = false;
 									model.setText(text);
 									model.setMessage("Bad put", "The word <i>" + word + "</i> could not be put to <i>" + wiki + "</i>.", "");
@@ -251,6 +243,7 @@ public class Controller extends HttpServlet {
 								model.setMessage("Successful update", "<a href=\"Read?wiki=" + wiki + "&amp;word=" + word + "\">Go to word <i>" + word + "</i> on server <i>" + wiki + "</i></a>.", "");
 								servletContext.getRequestDispatcher("/jsp/wiki_read.jsp").forward(request, response);
 							} else {
+								// Show form with message
 								servletContext.getRequestDispatcher("/jsp/wiki_edit.jsp").forward(request, response);
 							}
 						}

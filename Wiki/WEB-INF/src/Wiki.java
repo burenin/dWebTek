@@ -7,11 +7,7 @@ public class Wiki {
 	private Document document;
 	
 	public Wiki() {
-		try {
-			document = XmlUtils.getXmlDocument(xmlPath + "words.xml", false);
-		} catch (JDOMException e) {
-			// No validation, won't happen
-		}
+		document = XmlUtils.getXmlDocument(xmlPath + "words.xml", false);
 		if (document == null) {
 			Element root = new Element("wiki");
 			document = new Document(root);
@@ -29,28 +25,16 @@ public class Wiki {
 		} else {
 			// Add new version
 			int version = getWordVersion(word);
-			word.setAttribute("version", (version + 1) + "");
+			word.setAttribute("version", version++ + "");
 		}
 		save();
 	}
 	
-	public boolean deleteWord(String name, boolean all) {
+	public boolean deleteWord(String name) {
 		Element word = getWord(name);
 		if (word != null) {
 			// Delete XML
-			int version = getWordVersion(word);
-			boolean success = true;
-			if (all) {
-				while (version != 0) {
-					boolean status = XmlUtils.deleteXmlDocument(xmlPath + "words/" + name + "_" + version + ".xml");
-					if (status == false) {
-						success = false;
-					}
-					version--;
-				}
-			} else {
-				success = XmlUtils.deleteXmlDocument(xmlPath + "words/" + name + "_" + version + ".xml");
-			}
+			boolean success = XmlUtils.deleteXmlDocument(xmlPath + "words/" + name + ".xml");
 			if (!success) {
 				return false;
 			} else {
@@ -58,12 +42,8 @@ public class Wiki {
 				List<Element> words = getWords();
 				for (Element wordElement : words) {
 					if (wordElement.getText().equals(name)) {
-						if ((!all && version == 1) || all) {
-							wordElement.detach();
-							break;
-						} else {
-							wordElement.setAttribute("version", (version - 1) + "");
-						}
+						wordElement.detach();
+						break;
 					}
 				}
 				save();
@@ -76,28 +56,20 @@ public class Wiki {
 	
 	public Element getWord(String name) {
 		List<Element> words = getWords();
-		Element result = null;
-		int highestSoFar = 0;
 		for (Element w : words) {
 			if (w.getText().equals(name)) {
-				int version = getWordVersion(w);
-				if (version > highestSoFar) {
-					result = w;
-					highestSoFar = version;
-				}
+				return w;
 			}
 		}
-		return result;
+		return null;
 	}
 	
 	public int getWordVersion(Element word) {
-		int version = 0;
-		if (word != null) {
-			try {
-				version = word.getAttribute("version").getIntValue();
-			} catch (DataConversionException e) {
-				//
-			}
+		int version = 1;
+		try {
+			version = word.getAttribute("version").getIntValue();
+		} catch (DataConversionException e) {
+			//
 		}
 		return version;
 	}

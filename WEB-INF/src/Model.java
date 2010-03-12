@@ -10,13 +10,14 @@ import org.apache.commons.lang.*;
 
 public class Model {
 	private String xsltPath = "../webapps/Wiki/xslt/"; // from "/users/cqa/apache-tomcat-6.0.24/bin/"
-	private List<WikiServer> servers;
+	// For standard view:
 	private String pattern;
 	private String selectedWord;
 	private int selectedWordVersion;
 	private String selectedWiki;
 	private String defaultWiki;
 	private boolean editable;
+	// For conflicts or errors:
 	private boolean conflict;
 	private String oldWord;
 	private String eTag;
@@ -24,13 +25,14 @@ public class Model {
 	private String text;
 	
 	public Model() {
-		servers = new ArrayList<WikiServer>();
 		defaultWiki = "jtjcWiki";
 		editable = false;
 		conflict = false;
 		message = null;
 		text = null;
 	}
+	
+	// Standard usage handling:
 	
 	public void setPattern(String pattern) {
 		if (pattern == null) {
@@ -56,6 +58,8 @@ public class Model {
 	public String getDefaultWiki() {
 		return defaultWiki;
 	}
+	
+	// Handling with meta-servers:
 	
 	public List<WikiServer> getServers() {
 		List<WikiServer> result = new ArrayList<WikiServer>();
@@ -91,6 +95,8 @@ public class Model {
 		return null;
 	}
 	
+	// Handling with words:
+	
 	public List<WikiWord> getWords() {
 		List<WikiWord> matches = new ArrayList<WikiWord>();
 		List<WikiServer> servers = getServers();
@@ -103,6 +109,15 @@ public class Model {
 		}
 		Collections.sort(matches, WikiWord.getNameComparator());
 		return matches;
+	}
+	
+	public WikiWord getRandomWord() {
+		List<WikiWord> words = getWords();
+		if (words.size() != 0) {
+			int random = new Random().nextInt(words.size());
+			return words.get(random);
+		}
+		return null;
 	}
 	
 	public void setVersion(int version) {
@@ -118,6 +133,8 @@ public class Model {
 		}
 		return 1;
 	}
+	
+	// Handling with edit-errors and other
 	
 	public boolean getEditable() {
 		boolean result = editable;
@@ -158,28 +175,6 @@ public class Model {
 		this.text = text;
 	}
 	
-	public WikiWord getRandomWord() {
-		List<WikiWord> words = getWords();
-		if (words.size() != 0) {
-			int random = new Random().nextInt(words.size());
-			return words.get(random);
-		}
-		return null;
-	}
-	
-	public Document getXmlDocumentFromServer(String wiki, String word) throws JDOMException {
-		String versionRequest = "";
-		if (selectedWordVersion != -1) {
-			versionRequest = "&version=" + selectedWordVersion;
-		}
-		Document xmlDocument = null;
-		WikiServer server = getServer(wiki);
-		if (server != null) {
-			xmlDocument = XmlUtils.getWordDocumentFromHttpGetRequest(server, word + versionRequest);
-		}
-		return xmlDocument;
-	}
-	
 	public void setETag(String eTag) {
 		this.eTag = eTag;
 	}
@@ -200,6 +195,34 @@ public class Model {
 		return result;
 	}
 	
+	// Transform to client
+	
+	public Document getXmlDocumentFromServer(String wiki, String word) throws JDOMException {
+		String versionRequest = "";
+		if (selectedWordVersion != -1) {
+			versionRequest = "&version=" + selectedWordVersion;
+		}
+		Document xmlDocument = null;
+		WikiServer server = getServer(wiki);
+		if (server != null) {
+			xmlDocument = XmlUtils.getWordDocumentFromHttpGetRequest(server, word + versionRequest);
+		}
+		return xmlDocument;
+	}
+	
+	public String getConflicttext() {
+		try {
+			Document xmlDocument = getXmlDocumentFromServer(selectedWiki, selectedWord);
+			if (xmlDocument == null) return "Fejl ved xml";
+			Document textDocument = XsltUtils.transform(xmlDocument, xsltPath + "wikixml-to-text.xsl");
+			if (textDocument == null) return "Fejl ved text";
+			String text = textDocument.getRootElement().getText();
+			return StringEscapeUtils.unescapeHtml(text);
+		} catch (Exception e) {
+			return "Server could not generate text from conflicted document. " + e.getMessage();
+		}
+	}
+	
 	public String getText() {
 		if (message != null || conflict) {
 			return null;
@@ -210,20 +233,19 @@ public class Model {
 			WikiServer server = getServer(selectedWiki);
 			if (server != null) {
 				String service = "http://" + server.getHost() + ":" + server.getPort() + "/Wiki/Server?word=" + selectedWord;
-				HttpURLConnection connection = (HttpURLConnection) (new URL(service)).openConnection();
-				
-				connection.setRequestMethod("GET");
-				connection.setConnectTimeout(150);
-				connection.setReadTimeout(150);
+				HttpURLConnection connection = HttpUtils.getConnection("GET", service, new String[0]);
 				eTag = connection.getHeaderField("ETag");
 				
 				// Build document from inputstream
 				InputStream in = connection.getInputStream();
 				SAXBuilder builder = new SAXBuilder();
-				if (false) {
-					builder.setValidation(true);
-					builder.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "xmlSchema");
-				}
+				builder.setValidation(true);
+				builder.setProperty(
+						"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+						"http://www.w3.org/2001/XMLSchema");
+				builder.setProperty(
+					"http://java.sun.com/xml/jaxp/properties/schemaSource",
+					"http://camel21.cs.au.dk:8181/Wiki/xsd/wikiXmlSchema.xsd");
 				xmlDocument = builder.build(in);
 			} else {
 				setMessage("Server does not exist", "The wiki <i>" + selectedWiki + "</i> does not exist.", "");
@@ -279,7 +301,7 @@ public class Model {
 			}
 		}
 		try {
-			xmlDocument = getXmlDocumentFromServer(selectedWiki, selectedWord); 
+			xmlDocument = getXmlDocumentFromServer(selectedWiki, selectedWord);
 		} catch (JDOMException e) {
 			setMessage("Bad XML syntax", "The word <i>" + selectedWord + "</i>" + versionRequest + " on the wiki <i>" + selectedWiki + "</i> has bad syntax.", "");
 			return null;

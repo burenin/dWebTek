@@ -53,26 +53,14 @@
 						${message}
 						<c:if test="${textlost ne null}">
 							<hr />
-							<c:choose>
-								<c:when test="${conflict eq true}">
-									<form name="edit" method="post" action="Edit" class="conflict">
-								</c:when>
-								<c:otherwise>
-									<form name="edit" method="post" action="Edit">
-								</c:otherwise>
-							</c:choose>
+							<form name="edit" method="post" action="Edit">
 								Word name: <input type="text" name="word" value="${word}" /><br />
 								<c:if test="${conflict eq true}">
 									Ignore conflict?
 									<input type="radio" name="ignoreconflict" value="yes" />Yes
 									<input type="radio" name="ignoreconflict" value="no" checked />No
-									<br />
 								</c:if>
-								<textarea name="text">${textlost}</textarea>
-								<c:if test="${conflict eq true}">
-									<textarea class="conflictText" disabled>${model.conflicttext}</textarea>
-								</c:if>
-								<br />
+								<textarea name="text">${textlost}</textarea><br />
 								<input type="hidden" name="wiki" value="${wiki}" />
 								<c:set var="hidden" value="${model.oldword}" />
 								<c:if test="${oldword ne null and oldword ne ''}">

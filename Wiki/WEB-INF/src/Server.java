@@ -31,28 +31,12 @@ public class Server extends HttpServlet {
 			wordName = escapeFileName(wordName);
 			Element word = wiki.getWord(wordName);
 			if (word != null) {
-
-				String versionRequest = request.getParameter("version");
-				int version = wiki.getWordVersion(word);;
-				if (versionRequest != null && !versionRequest.equals("")) {
-					try {
-						version = Integer.parseInt(versionRequest);
-					} catch(NumberFormatException e) {
-						//
-					}
-				}
-				
-				String eTag = version + "";
+				String eTag = wiki.getWordVersion(word) + "";
 				if ((ifNoneMatchHeader != null && ifNoneMatchHeader.equals(eTag)) || (ifMatchHeader != null && !ifMatchHeader.equals(eTag))) {
 					// Not Modified
 					response.setStatus(304);
 				} else {
-					Document document = null;
-					try {
-						document = XmlUtils.getXmlDocument(xmlPath + wordName + "_" + eTag + ".xml", true);
-					} catch (JDOMException e) {
-						response.sendError(500, "The requested XML-document has bad Wiki-syntax");
-					}
+					Document document = XmlUtils.getXmlDocument(xmlPath + wordName + ".xml", true);
 					if (document != null) {
 						response.setHeader("Content-Type", "application/xml; charset:UTF-8");
 						response.setHeader("ETag", eTag);
@@ -102,11 +86,8 @@ public class Server extends HttpServlet {
 		
 		// Get request-info
 		String word = request.getParameter("word");
-		String all = request.getParameter("all");
-		boolean allValue = false;
-		if (all != null && all.equals("yes")) {
-			allValue = true;
-		}
+		
+		response.getWriter().write("Test");
 		
 		// Handle request
 		if (word == null || word.equals("")) {
@@ -114,10 +95,10 @@ public class Server extends HttpServlet {
 			response.sendError(400, "A XML-document name must be specified (/Server?word=<name>)");
 		} else {
 			word = escapeFileName(word);
-			boolean success = wiki.deleteWord(word, allValue);
+			boolean success = wiki.deleteWord(word);
 			if (!success) {
 				// Internal Server Error
-				response.sendError(500, "Server could not delete the XML-document");
+				response.sendError(501, "Server could not delete the XML-document");
 			}
 		}
 	}
@@ -162,23 +143,24 @@ public class Server extends HttpServlet {
 		String wordName = request.getParameter("word");
 		
 		// Handle request
-		if (wordName == null || wordName.equals("") || (wordName = escapeFileName(wordName)).equals("")) {
+		if (wordName == null || wordName.equals("")) {
 			// Bad Request
 			response.sendError(400, "A XML-document name must be specified (/Server?word=<name>)");
 		} else {
-			Element word = wiki.getWord(wordName);
-			int version = wiki.getWordVersion(word) + 1;
-			boolean success;
-			try {
-				success = XmlUtils.putStringToXml(xmlPath + wordName + "_" + version + ".xml", body);
-				if (success) {
+			wordName = escapeFileName(wordName);
+			boolean success = XmlUtils.putStringToXml(xmlPath + wordName + ".xml", body);
+			if (success) {
+				// Validate XML-document and put it
+				Document document = XmlUtils.getXmlDocument(xmlPath + wordName + ".xml", true);
+				if (document != null) {
 					wiki.putWord(wordName);
 				} else {
-					// Internal Server Error
-					response.sendError(500, "Server could not create XML-document");
+					// Bad syntax
+					response.sendError(400, "The XML-document to be put has bad syntax");
 				}
-			} catch (JDOMException e) {
-				response.sendError(400, "The XML-document to be put has bad wiki syntax");
+			} else {
+				// Internal Server Error
+				response.sendError(500, "Server could not create XML-document");
 			}
 		}
 	}

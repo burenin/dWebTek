@@ -5,37 +5,32 @@ import java.io.*;
 import java.net.*;
 
 public class XmlUtils {
-	public static Document getXmlDocument(String fileName, boolean validate) throws JDOMException {
+	public static Document getXmlDocument(String fileName, boolean isWord) {
 		File file = new File(fileName);
 		SAXBuilder builder = new SAXBuilder();
-		if (validate) {
+		if (false) {
 			builder.setValidation(true);
-			builder.setProperty(
-				"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-				"http://www.w3.org/2001/XMLSchema");
-			builder.setProperty(
-				"http://java.sun.com/xml/jaxp/properties/schemaSource",
-				"http://camel21.cs.au.dk:8181/Wiki/xsd/wikiXmlSchema.xsd");
+			builder.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "http://localhost/Wiki/xsd/wikiXmlSchema.xsd");
 		}
 		try {
 			return builder.build(file);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			return null;
 		}
 	}
 	
 	public static Document getWordDocumentFromHttpGetRequest(WikiServer server, String selectedWord) throws JDOMException {
 		String service = "http://" + server.getHost() + ":" + server.getPort() + "/Wiki/Server?word=" + selectedWord;
-		Document document = getDocumentFromHttpGetRequest(service, true);
+		Document document = getDocumentFromHttpGetRequest(service, "http://localhost/Wiki/xsd/wikiXmlSchema.xsd");
 		return document;
 	}
 	
 	public static Document getXmlDocumentFromHttpGetRequest(String service) throws JDOMException {
-		Document document = getDocumentFromHttpGetRequest(service, false);
+		Document document = getDocumentFromHttpGetRequest(service, null);
 		return document;
 	}
 	
-	public static Document getDocumentFromHttpGetRequest(String service, boolean validate) throws JDOMException {
+	public static Document getDocumentFromHttpGetRequest(String service, String xmlSchema) throws JDOMException {
 		try {
 			// Open connection to service
 			HttpURLConnection connection = (HttpURLConnection) (new URL(service)).openConnection();
@@ -47,14 +42,9 @@ public class XmlUtils {
 			// Build document from inputstream
 			InputStream in = connection.getInputStream();
 			SAXBuilder builder = new SAXBuilder();
-			if (validate) {
+			if (false) {
 				builder.setValidation(true);
-				builder.setProperty(
-					"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-					"http://www.w3.org/2001/XMLSchema");
-				builder.setProperty(
-					"http://java.sun.com/xml/jaxp/properties/schemaSource",
-					"http://camel21.cs.au.dk:8181/Wiki/xsd/wikiXmlSchema.xsd");
+				builder.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", xmlSchema);
 			}
 			return builder.build(in);
 		} catch(IOException e) {
@@ -73,15 +63,12 @@ public class XmlUtils {
 		return file.delete();
 	}
 	
-	public static boolean putStringToXml(String fileName, String content) throws JDOMException {
+	public static boolean putStringToXml(String fileName, String content) {
 		File file = new File(fileName);
 		try {
-			StringReader reader = new StringReader(content);
-			SAXBuilder builder = new SAXBuilder();
-			Document document = builder.build(reader);
-			
-			FileWriter out = new FileWriter(file);
-			outputDocument(document, out);
+			OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+			out.write(content);
+			out.close();
 			return true;
 		} catch (IOException e) {
 			return false;
